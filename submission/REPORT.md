@@ -23,11 +23,17 @@
 
 ## 4. Prompt versioning
 
-- Prompt name: `refund_assistant`
-- Version/label baseline: `v1` (`production`)
-- Version/label candidate: `v2` (`staging`)
-- Trace ID của mỗi version: `trace-baseline-v1` và `trace-candidate-v2`
-- Bằng chứng đổi label hoặc rollback: Langfuse trace metadata gắn nhãn `prompt_name: refund_assistant`, `prompt_version: 2`, `prompt_label: production`.
+- Prompt name: `day13-chat` (project Langfuse `My Project`, id `cmsnzttey02olad0feavh1bnm`)
+- Version/label baseline: `v1`, label `baseline` (đồng thời giữ `production` ở trạng thái ổn định)
+- Version/label candidate: `v2`, label `candidate`
+- Trace ID của mỗi version (đã xác minh qua Langfuse API, metadata `prompt_source=langfuse` cho cả hai):
+  - `baseline` → v1: trace `b621d965420839c00796fdc9b677a51f`
+  - `candidate` → v2: trace `25e083c7ad3e111bf706b328e5c0ecb0`
+- Bằng chứng đổi label và rollback `production` (thực hiện qua Langfuse API `update_prompt`, xác minh lại bằng `get_prompt`):
+  - Trước rollback — chuyển `production` sang v2: trace `b08031f676321ffd078cc2a0835d6178` có metadata `prompt_version=2`, `prompt_label=production`, `prompt_source=langfuse`.
+  - Sau rollback — trả `production` về v1: trace `fb86e011a03dfc151fd78599340b8582` có metadata `prompt_version=1`, `prompt_label=production`, `prompt_source=langfuse`.
+  - Trạng thái cuối cùng: `production` trỏ về v1 (đã rollback an toàn).
+- Evidence ảnh: `submission/evidence/prompt_versions.png` (danh sách 2 version trên Langfuse), `submission/evidence/prompt_rollback_before.png` và `submission/evidence/prompt_rollback_after.png` (metadata trace trước/sau rollback).
 
 ## 5. Dashboard, SLO và alerts
 

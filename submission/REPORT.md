@@ -5,7 +5,7 @@
 - Tên nhóm: MonsterCT2k3
 - Repository URL: https://github.com/MonsterCT2k3/Day13-2A202601307-NguyenDangNam
 - Commit SHA cuối: a4774c4
-- Thành viên và vai trò: Nguyễn Đăng Nam (Observability Engineer / Fullstack Dev)
+- Thành viên và vai trò:
 
 ## 2. Kết quả kỹ thuật
 

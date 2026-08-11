@@ -7,7 +7,7 @@ alerts:
     runbook: docs/alerts.md#alert-1
   - name: elevated_error_rate
     severity: critical
-    condition: "error_rate_pct > 5 for 3 minutes"
+    condition: "error_rate_pct > 2 for 3 minutes"
     type: symptom-based
     owner: on-call-engineer
     runbook: docs/alerts.md#alert-2

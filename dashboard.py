@@ -40,10 +40,16 @@ st.markdown("""
     .status-pass {
         color: #16A34A;
         font-weight: 600;
+        background-color: #DCFCE7;
+        padding: 2px 8px;
+        border-radius: 4px;
     }
     .status-fail {
         color: #DC2626;
         font-weight: 600;
+        background-color: #FEE2E2;
+        padding: 2px 8px;
+        border-radius: 4px;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -133,7 +139,7 @@ if st.sidebar.button("🔄 Refresh Now"):
 df = load_logs(log_file)
 
 if df.empty or "ts" not in df.columns:
-    st.warning(f"No log data found or log file empty at `{log_file}`.")
+    st.warning(f"Chưa có dữ liệu log tại `{log_file}`. Hãy chạy API và gửi tải bằng `python scripts/load_test.py` để xem dashboard.")
     st.stop()
 
 # Time filtering
@@ -200,7 +206,7 @@ with col1:
         fig.update_layout(height=280, margin=dict(l=20, r=20, t=20, b=20))
         st.plotly_chart(fig, use_container_width=True)
     else:
-        st.info("No response_sent events found.")
+        st.info("Chưa có sự kiện response_sent.")
 
 # --- PANEL 2: REQUEST TRAFFIC ---
 with col2:
@@ -229,7 +235,7 @@ with col2:
         fig.update_layout(height=280, margin=dict(l=20, r=20, t=20, b=20))
         st.plotly_chart(fig, use_container_width=True)
     else:
-        st.info("No request_received events found.")
+        st.info("Chưa có sự kiện request_received.")
 
 # Row 2
 col3, col4 = st.columns(2)
@@ -262,7 +268,7 @@ with col3:
         fig.update_layout(height=250, margin=dict(l=20, r=20, t=30, b=20))
         st.plotly_chart(fig, use_container_width=True)
     else:
-        st.success("Zero errors recorded in current window!")
+        st.success("Không ghi nhận lỗi nào trong khung thời gian hiện tại (0 errors).")
 
 # --- PANEL 4: COST OVER TIME ---
 with col4:
@@ -288,7 +294,7 @@ with col4:
         fig.update_layout(height=280, margin=dict(l=20, r=20, t=20, b=20))
         st.plotly_chart(fig, use_container_width=True)
     else:
-        st.info("No cost data available.")
+        st.info("Chưa có dữ liệu chi phí.")
 
 # Row 3
 col5, col6 = st.columns(2)
@@ -322,7 +328,7 @@ with col5:
         fig.update_layout(height=280, margin=dict(l=20, r=20, t=20, b=20))
         st.plotly_chart(fig, use_container_width=True)
     else:
-        st.info("No token usage data available.")
+        st.info("Chưa có dữ liệu token.")
 
 # --- PANEL 6: QUALITY PROXY ---
 with col6:
@@ -351,7 +357,7 @@ with col6:
         fig.update_layout(height=280, margin=dict(l=20, r=20, t=20, b=20), yaxis_range=[0, 1.05])
         st.plotly_chart(fig, use_container_width=True)
     else:
-        st.info("No quality score data available.")
+        st.info("Chưa có dữ liệu điểm chất lượng.")
 
 # Footer
 st.markdown("---")

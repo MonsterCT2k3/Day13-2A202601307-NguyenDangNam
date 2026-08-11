@@ -2,9 +2,9 @@ service: day13-observability-lab
 window: 28d
 slis:
   latency_p95_ms:
-    objective: 3000
+    objective: 2000
     target: 99.5
-    note: Replace with your group's target
+    note: "The 95th percentile latency should be below 2000ms for 99.5% of requests according the observation in the dashboard that P99 latency normally is about 1600ms."
   error_rate_pct:
     objective: 2
     target: 99.0

@@ -4,7 +4,7 @@
 
 - Tên nhóm: MonsterCT2k3
 - Repository URL: https://github.com/MonsterCT2k3/Day13-2A202601307-NguyenDangNam
-- Commit SHA cuối: a4774c4
+- Commit SHA cuối: 5ef6b17
 - Thành viên và vai trò: Nguyễn Đăng Nam (Observability Engineer / Fullstack Dev)
 
 ## 2. Kết quả kỹ thuật
@@ -16,29 +16,23 @@
 
 ## 3. Logging và tracing
 
-- Evidence correlation ID: `req-09355da6`, `req-4d436cfd`
-- Evidence PII redaction: Các chuỗi nhạy cảm được thay thế bằng `[REDACTED_EMAIL]`, `[REDACTED_PHONE]`, `[REDACTED_CARD]` trong log
-- Evidence trace waterfall: `submission/evidence/trace_waterfall.png`
-- Giải thích một span đáng chú ý: Span `retrieve` trong `app/mock_rag.py` thực hiện RAG vector lookup. Khi xảy ra incident `rag_slow`, span này bị delay 2500ms, trở thành nút thắt cổ chai (bottleneck) chiếm >90% tổng latency của request (2516.4ms).
+- Evidence correlation ID: Ảnh `submission/evidence/trace_waterfall.png` có correlation ID là `req-d5107deb` ứng với log.
+- Evidence PII redaction: Ảnh `submission/evidence/trace_redact_pii1.png` và `submission/evidence/trace_redact_pii2.png` trong metadata log thì số thẻ ngân hàng được redact thành [REDACTED_CREDIT_CARD].
+- Evidence trace waterfall: Ảnh `submission/evidence/trace_list.png` danh sách các trace đã log (>=10 traces)
+- Giải thích một span đáng chú ý: Span `GENERATION` tên `run` (ID: `96c26f27117d4c80`, Depth 1). Đây là span trung tâm bao bọc toàn bộ luồng RAG + LLM Generation, trong span metadata có kiểm soát Prompt Fallback State: Metadata hiển thị `prompt_source: "local-fallback"` và `prompt_fetch_error: "LangfuseFallback"`, chứng minh cơ chế an toàn của ứng dụng đã tự động dùng prompt cục bộ `local-v1` khi kết nối Langfuse Managed Prompt gặp sự cố.
 
 ## 4. Prompt versioning
 
-- Prompt name: `day13-chat` (project Langfuse `My Project`, id `cmsnzttey02olad0feavh1bnm`)
-- Version/label baseline: `v1`, label `baseline` (đồng thời giữ `production` ở trạng thái ổn định)
-- Version/label candidate: `v2`, label `candidate`
-- Trace ID của mỗi version (đã xác minh qua Langfuse API, metadata `prompt_source=langfuse` cho cả hai):
-  - `baseline` → v1: trace `b621d965420839c00796fdc9b677a51f`
-  - `candidate` → v2: trace `25e083c7ad3e111bf706b328e5c0ecb0`
-- Bằng chứng đổi label và rollback `production` (thực hiện qua Langfuse API `update_prompt`, xác minh lại bằng `get_prompt`):
-  - Trước rollback — chuyển `production` sang v2: trace `b08031f676321ffd078cc2a0835d6178` có metadata `prompt_version=2`, `prompt_label=production`, `prompt_source=langfuse`.
-  - Sau rollback — trả `production` về v1: trace `fb86e011a03dfc151fd78599340b8582` có metadata `prompt_version=1`, `prompt_label=production`, `prompt_source=langfuse`.
-  - Trạng thái cuối cùng: `production` trỏ về v1 (đã rollback an toàn).
-- Evidence ảnh: `submission/evidence/prompt_versions.png` (danh sách 2 version trên Langfuse), `submission/evidence/prompt_rollback_before.png` và `submission/evidence/prompt_rollback_after.png` (metadata trace trước/sau rollback).
+- Prompt name: Các ảnh `submission/evidence/prompt_list.png` và `submission/evidence/prompt_list2.png` chứa các prompt baseline và candidate.
+- Version/label baseline: version 1, trace trong các ảnh `submission/evidence/baseline.png` và `submission/evidence/baseline2.png`
+- Version/label candidate: version 2, trace trong các ảnh `submission/evidence/candidate.png` và `submission/evidence/candidate2.png`
+- Trace ID của mỗi version: `e412c5a391afe5fd25d6aeb7b3b5823f` cho baseline, `fcaa0d0d30431255a1c0b3c853f16a76` cho candidate.
+- Bằng chứng đổi label hoặc rollback: Các ảnh `submission/evidence/trace_prompt_production.png` và `submission/evidence/trace_prompt_production2.png` là trace của production khi rollback về v1. Các ảnh `submission/evidence/trace_prompt_production_to_v2_1.png` và `submission/evidence/trace_prompt_production_to_v2_2.png` là trace của production prompt khi chuyển sang version 2.
 
 ## 5. Dashboard, SLO và alerts
 
 - Kết quả `validate_dashboard.py`: HỢP LỆ: 6/6 panel có trong dashboard contract.
-- Evidence dashboard: `submission/evidence/dashboard_baseline1.png` và `submission/evidence/dashboard_baseline2.png`
+- Evidence dashboard: `submission/evidence/dashboard_baseline1.png` và `submission/evidence/dashboard_baseline2.png` trước incident, `submission/evidence/dashboard_incident_rag_slow_1.png` và `submission/evidence/dashboard_incident_rag_slow_2.png` dashboard sau khi gặp sự cố
 - SLO đã chọn và lý do:
   - `latency_p95_ms` (Objective: ≤ 2000 ms, Target: 99.5%): Đảm bảo trải nghiệm phản hồi nhanh cho người dùng, tránh timeout client.
   - `error_rate_pct` (Objective: ≤ 2%, Target: 99.0%): Đảm bảo tính sẵn sàng và độ tin cậy của ứng dụng AI.

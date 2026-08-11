@@ -4,7 +4,7 @@
 
 - Tên nhóm: B4
 - Repository URL: https://github.com/MonsterCT2k3/Day13-2A202601307-NguyenDangNam
-- Commit SHA cuối: 1b0adbc
+- Commit SHA cuối: 1ebf5f6
 - Thành viên và vai trò:
 
   | Thành viên | MSSV | Vai trò |

@@ -10,7 +10,7 @@
 ## 2. Kết quả kỹ thuật
 
 - Điểm `validate_logs.py`: 100/100 (Đạt toàn bộ tiêu chí schema, correlation ID propagation, log enrichment và PII scrubbing)
-- Tổng số traces: 22 traces
+- Tổng số traces: ≥100 traces (xác minh qua Langfuse API tại thời điểm nộp, luôn ≥10 theo yêu cầu tối thiểu)
 - Số PII leak còn lại: 0 (Đã kiểm tra và lọc sạch Email, Phone VN, CCCD, Credit Card)
 - Link/đường dẫn dashboard: `dashboard.py` (Streamlit Dashboard)
 
@@ -24,31 +24,37 @@
 ## 4. Prompt versioning
 
 - Prompt name: Các ảnh `submission/evidence/prompt_list.png` và `submission/evidence/prompt_list2.png` chứa các prompt baseline và candidate.
-- Version/label baseline: version 1, trace trong các ảnh `submission/evidence/baseline.png` và `submission/evidence/baseline2.png`
-- Version/label candidate: version 2, trace trong các ảnh `submission/evidence/candidate.png` và `submission/evidence/candidate2.png`
+- Version/label baseline: version 1, trace trong các ảnh `submission/evidence/trace_prompt_baseline.png` và `submission/evidence/trace_prompt_baseline2.png`
+- Version/label candidate: version 2, trace trong các ảnh `submission/evidence/trace_prompt_candidate.png` và `submission/evidence/trace_prompt_candidate2.png`
 - Trace ID của mỗi version: `e412c5a391afe5fd25d6aeb7b3b5823f` cho baseline, `fcaa0d0d30431255a1c0b3c853f16a76` cho candidate.
 - Bằng chứng đổi label hoặc rollback: Các ảnh `submission/evidence/trace_prompt_production.png` và `submission/evidence/trace_prompt_production2.png` là trace của production khi rollback về v1. Các ảnh `submission/evidence/trace_prompt_production_to_v2_1.png` và `submission/evidence/trace_prompt_production_to_v2_2.png` là trace của production prompt khi chuyển sang version 2.
 
 ## 5. Dashboard, SLO và alerts
 
 - Kết quả `validate_dashboard.py`: HỢP LỆ: 6/6 panel có trong dashboard contract.
-- Evidence dashboard: `submission/evidence/dashboard_baseline1.png` và `submission/evidence/dashboard_baseline2.png` trước incident, `submission/evidence/dashboard_incident_rag_slow_1.png` và `submission/evidence/dashboard_incident_rag_slow_2.png` dashboard sau khi gặp sự cố
+- Evidence dashboard: `submission/evidence/dashboard_baseline1.png` và `submission/evidence/dashboard_baseline2.png` trước incident, `submission/evidence/dashboard_incident_rag_slow1.png` và `submission/evidence/dashboard_incident_rag_slow2.png` dashboard sau khi gặp sự cố (P95 tăng từ 1369.6 ms lên 3657.2 ms, vượt ngưỡng dashboard contract và hiện `[ALERT / THRESHOLD BREACH]`).
 - SLO đã chọn và lý do:
   - `latency_p95_ms` (Objective: ≤ 2000 ms, Target: 99.5%): Đảm bảo trải nghiệm phản hồi nhanh cho người dùng, tránh timeout client.
   - `error_rate_pct` (Objective: ≤ 2%, Target: 99.0%): Đảm bảo tính sẵn sàng và độ tin cậy của ứng dụng AI.
   - `daily_cost_usd` (Objective: ≤ $2.5, Target: 100.0%): Kiểm soát ngân sách API LLM không bị vượt mức cho phép.
   - `quality_score_avg` (Objective: ≥ 0.75, Target: 95.0%): Đảm bảo chất lượng câu trả lời AI đạt tiêu chuẩn nghiệp vụ.
+- Lưu ý chênh lệch ngưỡng latency: `config/dashboard.yaml` (dashboard contract, không sửa) đặt vạch cảnh báo hiển thị ở P95 ≤ 3000 ms, trong khi `config/slo.yaml` và `config/alert_rules.yaml` của nhóm áp SLO nội bộ chặt hơn là P95 ≤ 2000 ms. Đây là chủ đích: dashboard giữ nguyên ngưỡng contract gốc để không phá hợp đồng chấm điểm, còn alert/SLO dùng ngưỡng nghiêm ngặt hơn để cảnh báo sớm trước khi chạm ngưỡng contract.
 - Alert rules và runbook: Đã cấu hình tại `config/alert_rules.yaml` và hoàn thiện tài liệu hướng dẫn xử lý tại `docs/alerts.md`.
 
 ## 6. Điều tra challenge
 
-- Challenge ID: `day13-k3-observability-v1`
-- Triệu chứng từ metrics: P95 Latency của feature `refund` tăng đột biến từ ~150ms lên 2516.4ms (vượt quá ngưỡng SLO 2000ms), kích hoạt cảnh báo `HighP95Latency`.
-- Trace ID liên quan: `req-09355da6`, `req-4d436cfd`, `req-edef54e1`
-- Log line/correlation ID liên quan: `req-4d436cfd` với `event="response_sent"`, `service="api"`, `latency_ms=2516.4`
-- Root cause: Incident `rag_slow` làm cho hàm `retrieve()` trong `app/mock_rag.py` thực hiện `time.sleep(2.5)` mỗi khi tra cứu tri thức liên quan tới feature `refund`.
-- Fix action: Tắt incident `rag_slow` bằng `/incidents/rag_slow/disable` (trong hệ thống sản xuất: tối ưu chỉ mục vector database, thêm cache kết quả RAG).
-- Preventive measure: Đặt timeout cứng cho RAG span (max 1000ms), áp dụng circuit breaker và trả về fallback response khi retrieval quá thời gian cho phép.
+- Challenge ID: `day13-k3-observability-v1`, chạy chính thức bằng `python scripts/inject_incident.py` + `python scripts/load_test.py --challenge --concurrency 5` sau khi logging/tracing đã sửa.
+- Triệu chứng từ metrics: Ngay sau khi chạy, `GET /metrics` ghi nhận `latency_p50=2651ms`, `latency_p95=4580ms` cho feature `refund` (vượt SLO 2000ms và ngưỡng dashboard 3000ms).
+- **Phát hiện quan trọng — độ trễ người dùng thực tế còn nghiêm trọng hơn số liệu nội bộ:** độ trễ đo phía client (`load_test.py`, round-trip thật) của cả 5 request lên tới **~15.234s mỗi request**, cao gấp ~3.3 lần P95 mà app tự đo (4.58s). Nguyên nhân: `POST /chat` là `async def` nhưng gọi trực tiếp `agent.run()` (đồng bộ) chứa `time.sleep(2.5)` trong `retrieve()` — lệnh block này chiếm giữ toàn bộ event loop của Uvicorn (1 tiến trình, không threadpool), khiến 5 request bị xử lý tuần tự thay vì song song. Bằng chứng trong log: `request_received` của session `k3-challenge-s04` lúc `05:43:25.806846Z` gần như trùng khớp tuyệt đối với `response_sent` của session `k3-challenge-s02` lúc `05:43:25.806011Z` — tức s04 chỉ bắt đầu được xử lý ngay khi s02 vừa xong, không hề chạy song song. Vì `latency_ms` trong log/metrics/dashboard được đo bắt đầu **sau khi** request đã được dequeue, con số P95 hiện tại của dashboard **không phản ánh đúng** mức độ nghiêm trọng mà người dùng thật sự trải nghiệm khi có tải đồng thời trong lúc incident.
+- Trace ID Langfuse thật, đối chiếu với `correlation_id` và log (đã verify qua Langfuse API và `data/logs.jsonl`):
+  - Trace `f67c05145d273d6a2ee0ae01734b1f2a` ↔ `correlation_id=req-0db9c22c` ↔ log `response_sent` `latency_ms=4580` (session `k3-challenge-s02`)
+  - Trace `e17fb297ee0d22cfb6403a5f95b5a224` ↔ `correlation_id=req-47a1dac2` ↔ log `response_sent` `latency_ms=2651` (session `k3-challenge-s04`)
+  - Trace `1a000b3d4227d53a271ca3de89d1a13a` ↔ `correlation_id=req-9ac394e8` ↔ log `response_sent` `latency_ms=2651` (session `k3-challenge-s05`)
+- Root cause (2 tầng):
+  1. Trực tiếp: incident `rag_slow` bật `time.sleep(2.5)` trong `retrieve()` (`app/mock_rag.py`) mỗi khi tra cứu tri thức cho feature `refund`.
+  2. Khuếch đại (mới phát hiện khi chạy đúng lệnh `--concurrency 5`): `retrieve()`/`resolve_prompt()` chạy đồng bộ bên trong route `async def`, chặn event loop, biến độ trễ 2.5s/request thành hiệu ứng cộng dồn theo hàng đợi cho toàn bộ traffic đồng thời.
+- Fix action: Tắt incident `rag_slow` bằng `/incidents/rag_slow/disable` (đã tắt sau khi thu thập evidence). Về lâu dài: bọc `retrieve()` và `resolve_prompt()` qua `run_in_threadpool`/`asyncio.to_thread` (hoặc chuyển sang các API bất đồng bộ) để một request chậm không chặn toàn bộ throughput.
+- Preventive measure: Đặt timeout cứng cho RAG span (max 1000ms), áp dụng circuit breaker và trả fallback khi retrieval quá thời gian cho phép; đồng thời bổ sung metric đo riêng thời gian xếp hàng (queue wait time) tách biệt với thời gian xử lý, để dashboard phản ánh đúng trải nghiệm người dùng dưới tải đồng thời.
 
 ## 7. Đóng góp cá nhân
 

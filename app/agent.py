@@ -49,6 +49,7 @@ class LabAgent:
             session_id=session_id,
             tags=["lab", feature, self.model],
             metadata={
+                "correlation_id": get_contextvars().get("correlation_id", "MISSING"),
                 "prompt_name": prompt.name,
                 "prompt_label": prompt.label,
                 "prompt_version": prompt.version,

@@ -4,13 +4,16 @@ slis:
   latency_p95_ms:
     objective: 2000
     target: 99.5
-    note: "The 95th percentile latency should be below 2000ms for 99.5% of requests according the observation in the dashboard that P99 latency normally is about 1600ms."
+    note: "Đảm bảo trải nghiệm tương tác AI nhanh chóng, độ trễ P95 không vượt quá 2000ms cho 99.5% requests."
   error_rate_pct:
     objective: 2
     target: 99.0
+    note: "Tỷ lệ lỗi toàn hệ thống không vượt quá 2% trong cửa sổ đánh giá."
   daily_cost_usd:
     objective: 2.5
     target: 100.0
+    note: "Tổng chi phí gọi LLM API mỗi ngày không vượt quá hạn mức ngân sách $2.5."
   quality_score_avg:
     objective: 0.75
     target: 95.0
+    note: "Điểm chất lượng câu trả lời AI (Quality proxy score) trung bình luôn đạt từ 0.75 trở lên cho ít nhất 95% requests."

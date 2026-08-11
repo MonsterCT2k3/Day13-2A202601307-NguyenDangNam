@@ -23,11 +23,11 @@
 
 ## 4. Prompt versioning
 
-- Prompt name:
-- Version/label baseline:
-- Version/label candidate:
-- Trace ID của mỗi version:
-- Bằng chứng đổi label hoặc rollback:
+- Prompt name: Các ảnh `submission/evidence/prompt_list.png` và `submission/evidence/prompt_list2.png` chứa các prompt baseline và candidate.
+- Version/label baseline: version 1, trace trong các ảnh `submission/evidence/baseline.png` và `submission/evidence/baseline2.png`
+- Version/label candidate: version 2, trace trong các ảnh `submission/evidence/candidate.png` và `submission/evidence/candidate2.png`
+- Trace ID của mỗi version: `e412c5a391afe5fd25d6aeb7b3b5823f` cho baseline, `fcaa0d0d30431255a1c0b3c853f16a76` cho candidate.
+- Bằng chứng đổi label hoặc rollback: Các ảnh `submission/evidence/trace_prompt_production.png` và `submission/evidence/trace_prompt_production2.png` là trace của production khi rollback về v1. Các ảnh `submission/evidence/trace_prompt_production_to_v2_1.png` và `submission/evidence/trace_prompt_production_to_v2_2.png` là trace của production prompt khi chuyển sang version 2.
 
 ## 5. Dashboard, SLO và alerts
 

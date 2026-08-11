@@ -173,11 +173,12 @@
 
 ## Checklist evidence tối thiểu
 
-- [ ] Baseline và kết quả cuối `validate_logs.py`.
-- [ ] Log JSON có correlation ID, metadata và PII đã redact.
-- [ ] Danh sách ≥10 traces và một waterfall.
-- [ ] Hai prompt version + hai trace khác label/version + ảnh rollback.
-- [ ] Dashboard sáu panel + validator 6/6.
-- [ ] SLO, alert rules và runbook.
-- [ ] Điều tra challenge: screenshot metric, trace ID/waterfall, log/correlation ID, root cause, fix, preventive measure.
-- [ ] `REPORT.md` đầy đủ và bảng commit/PR của từng thành viên.
+- [x] Baseline và kết quả cuối `validate_logs.py`.
+- [x] Log JSON có correlation ID, metadata và PII đã redact.
+- [x] Danh sách ≥10 traces và một waterfall.
+- [x] Hai prompt version + hai trace khác label/version + ảnh rollback.
+- [x] Dashboard sáu panel + validator 6/6.
+- [x] SLO, alert rules và runbook.
+- [x] Điều tra challenge: screenshot metric, trace ID/waterfall, log/correlation ID, root cause, fix, preventive measure.
+- [x] `REPORT.md` đầy đủ và bảng commit/PR của từng thành viên.
+

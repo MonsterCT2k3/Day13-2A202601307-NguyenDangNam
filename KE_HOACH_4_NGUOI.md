@@ -43,8 +43,8 @@
 3. Gửi request chứa email, phone, CCCD/thẻ để kiểm tra trực tiếp redaction; chụp/lưu một log đã che tại `submission/evidence/`.
 4. Xóa các comment `TODO` đã hoàn thành để source dễ review (không bắt buộc validator, nhưng nên làm).
 
-**Trạng thái:** Code gần hoàn thành; chưa có kết quả validator/log evidence mới để xác minh.  
-**Tiêu chí bàn giao:** `validate_logs.py` 100/100 + ảnh/text evidence log correlation ID và PII redaction.
+**Trạng thái:** Hoàn thành và đã xác minh: test logging/PII liên quan pass; `validate_logs.py` đạt 100/100 với 21 records, 10 correlation ID và 0 PII leak. Evidence text: `submission/evidence/log_validation.md`.
+**Tiêu chí bàn giao:** Hoàn tất; giữ lại evidence này và chạy lại validator cuối cùng trước khi nộp.
 
 ### Người 2 — Tracing & Prompt Version
 

@@ -2,10 +2,17 @@
 
 ## 1. Thông tin nhóm
 
-- Tên nhóm: MonsterCT2k3
+- Tên nhóm: B4
 - Repository URL: https://github.com/MonsterCT2k3/Day13-2A202601307-NguyenDangNam
-- Commit SHA cuối: 5ef6b17
-- Thành viên và vai trò: Nguyễn Đăng Nam (Observability Engineer / Fullstack Dev)
+- Commit SHA cuối: 1b0adbc
+- Thành viên và vai trò:
+
+  | Thành viên | MSSV | Vai trò |
+  |---|---|---|
+  | Đậu Quốc Duy | 2A202601445 | Role 1 — Logging & PII |
+  | Tống Nguyễn Minh Khang | 2A202601101 | Role 2 — Tracing & Prompt Version |
+  | Nguyễn Hữu Tuyền | 2A202601605 | Role 3 — Dashboard, SLO & Alerts |
+  | Nguyễn Đăng Nam | 2A202601307 | Role 4 — Incident, Report & Integration |
 
 ## 2. Kết quả kỹ thuật
 
@@ -58,7 +65,10 @@
 
 ## 7. Đóng góp cá nhân
 
-| Thành viên | Phần việc | Commit/PR | Điều đã học |
-|---|---|---|---|
-| Nguyễn Đăng Nam | Xây dựng PII Redaction, Dashboard Streamlit, SLO & Alert rules, Điều tra Incident RAG Slow | `f11c3ec`, `7a57bfb`, `f1a02e5` | Thành thạo 3 trụ cột Observability (Metrics, Traces, Logs), thiết lập SLO/Alerts và kỹ năng khoanh vùng root cause bằng correlation ID & trace waterfall. |
+| Thành viên | Vai trò | Phần việc | Commit/PR | Điều đã học |
+|---|---|---|---|---|
+| Đậu Quốc Duy | Role 1 — Logging & PII | Cấu hình structlog JSON, correlation ID propagation qua middleware, log enrichment và PII redaction (`app/middleware.py`, `app/main.py`, `app/logging_config.py`, `app/pii.py`); đạt `validate_logs.py` 100/100 | | Thành thạo structured logging, context propagation bằng correlation ID và kỹ thuật scrub PII trước khi ghi log. |
+| Tống Nguyễn Minh Khang | Role 2 — Tracing & Prompt Version | Tích hợp Langfuse tracing, gắn metadata prompt (`prompt_name`, `prompt_label`, `prompt_version`, `prompt_source`) vào trace, quản lý prompt version baseline/candidate và rollback (`app/agent.py`, `app/prompt_management.py`) | | Nắm được distributed tracing, span waterfall và quy trình prompt versioning/rollback trên Langfuse. |
+| Nguyễn Hữu Tuyền | Role 3 — Dashboard, SLO & Alerts | Dựng dashboard 6 panel (Streamlit), định nghĩa SLO, alert rules và runbook (`dashboard.py`, `config/slo.yaml`, `config/alert_rules.yaml`, `docs/alerts.md`); đạt `validate_dashboard.py` 6/6 | | Thiết kế dashboard observability, định nghĩa SLO/SLI và viết alert symptom-based kèm runbook xử lý sự cố. |
+| Nguyễn Đăng Nam | Role 4 — Incident, Report & Integration | Điều tra challenge `rag_slow` theo chuỗi Metrics → Trace → Log → Root cause, tổng hợp evidence, hoàn thiện `submission/REPORT.md` và kiểm tra tích hợp trước khi nộp | `f11c3ec`, `7a57bfb`, `f1a02e5` | Khoanh vùng root cause bằng correlation ID & trace waterfall, tích hợp 3 trụ cột Observability (Metrics, Traces, Logs) thành báo cáo điều tra hoàn chỉnh. |
 

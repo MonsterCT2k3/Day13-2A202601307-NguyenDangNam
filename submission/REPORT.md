@@ -72,3 +72,32 @@
 | Nguyễn Hữu Tuyền | Role 3 — Dashboard, SLO & Alerts | Dựng dashboard 6 panel (Streamlit), định nghĩa SLO, alert rules và runbook (`dashboard.py`, `config/slo.yaml`, `config/alert_rules.yaml`, `docs/alerts.md`); đạt `validate_dashboard.py` 6/6 | `c433ee3`, `5ef6b17`, `6a05639` | Thiết kế dashboard observability, định nghĩa SLO/SLI và viết alert symptom-based kèm runbook xử lý sự cố. |
 | Nguyễn Đăng Nam | Role 4 — Incident, Report & Integration | Điều tra challenge `rag_slow` theo chuỗi Metrics → Trace → Log → Root cause, sửa lỗi `correlation_id` bị mất khỏi Langfuse trace, tổng hợp evidence, hoàn thiện `submission/REPORT.md` và tích hợp/kiểm tra cuối trước khi nộp | `3c4317e`, `6a18bb1`, `a236af3`, `422bbcf` | Khoanh vùng root cause bằng correlation ID & trace waterfall, tích hợp 3 trụ cột Observability (Metrics, Traces, Logs) thành báo cáo điều tra hoàn chỉnh, xử lý merge/reconcile công việc nhiều thành viên. |
 
+## 8. Bonus — Tối ưu chi phí & Audit Log
+
+### Cost Optimization
+
+Giải pháp trong `app/mock_llm.py`: hard cap `MAX_OUTPUT_TOKENS=180` (chặn incident
+`cost_spike` nhân 4 lần output token) + cache response theo prompt text trùng lặp
+(`tokens_in=tokens_out=0` khi cache hit). Evidence đầy đủ: `submission/evidence/cost_optimization.md`.
+
+- BEFORE (chưa tối ưu, `cost_spike` bật): `total_cost_usd = 0.0766`, `tokens_out_total = 5028` (10 request).
+- AFTER (đã cap, cache còn trống): `total_cost_usd = 0.0282`, `tokens_out_total = 1800` — **giảm 63.2%**.
+- AFTER + cache warm (chạy lại đúng 10 query đó lần 2): `total_cost_usd` không đổi
+  (+0 USD cho toàn bộ traffic lặp lại), latency giảm từ ~154ms xuống ~2-4ms/request.
+
+### Audit Log
+
+Module `app/audit.py` ghi các sự kiện quan trọng (incident enable/disable) vào file
+riêng `AUDIT_LOG_PATH` (`data/audit.jsonl`, tách biệt khỏi `data/logs.jsonl`), được gọi
+từ `POST /incidents/{name}/enable` và `/disable` trong `app/main.py`. Evidence:
+`submission/evidence/audit_log.md`.
+
+### Custom Automation
+
+`scripts/detect_anomalies.py` quét `data/logs.jsonl`, tự động phát hiện (1) PII leak
+chưa được redact (tái dùng `PII_PATTERNS` từ `app/pii.py`) và (2) request vi phạm
+ngưỡng `latency_p95_ms` đọc trực tiếp từ `config/slo.yaml`. Chạy trên log thật của
+repo: 0 PII leak, bắt đúng 10 request bị `rag_slow` làm chậm trong challenge chính
+thức (khớp với mục 6). Self-test với dữ liệu giả xác nhận cả hai nhánh phát hiện đều
+hoạt động đúng. Evidence: `submission/evidence/anomaly_detection.md`.
+
